@@ -15,6 +15,17 @@ public class PortalZoneTeleporter : MonoBehaviour
     [SerializeField]
     private bool keepCurrentY = false;
 
+    [Header("Audio")]
+    [SerializeField]
+    private AudioClip proximitySound;
+
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float proximityVolume = 1f;
+
+    [SerializeField]
+    private float soundHeightOffset = 1.2f;
+
     private static float s_lastTeleportTime = -1000f;
 
     private void OnTriggerEnter(Collider other)
@@ -25,6 +36,12 @@ public class PortalZoneTeleporter : MonoBehaviour
         var xrOrigin = other.GetComponentInParent<XROrigin>();
         if (xrOrigin == null)
             return;
+
+        if (proximitySound != null)
+        {
+            var soundPosition = transform.position + Vector3.up * soundHeightOffset;
+            AudioSource.PlayClipAtPoint(proximitySound, soundPosition, proximityVolume);
+        }
 
         var target = destinationPosition;
         if (keepCurrentY)

@@ -1727,6 +1727,9 @@ MonoBehaviour:
   verticalOffset: 1.2
   cooldownSeconds: 1
   keepCurrentY: 0
+  proximitySound: {fileID: 8300000, guid: 191047cc3db95a741af12a1f8b69fb51, type: 3}
+  proximityVolume: 1
+  soundHeightOffset: 1.2
 --- !u!1 &910200000000000001
 GameObject:
   m_ObjectHideFlags: 0
@@ -1797,6 +1800,9 @@ MonoBehaviour:
   verticalOffset: 1.2
   cooldownSeconds: 1
   keepCurrentY: 0
+  proximitySound: {fileID: 8300000, guid: 191047cc3db95a741af12a1f8b69fb51, type: 3}
+  proximityVolume: 1
+  soundHeightOffset: 1.2
 --- !u!1 &910300000000000001
 GameObject:
   m_ObjectHideFlags: 0
@@ -1867,6 +1873,9 @@ MonoBehaviour:
   verticalOffset: 1.2
   cooldownSeconds: 1
   keepCurrentY: 0
+  proximitySound: {fileID: 8300000, guid: 191047cc3db95a741af12a1f8b69fb51, type: 3}
+  proximityVolume: 1
+  soundHeightOffset: 1.2
 --- !u!1 &910400000000000001
 GameObject:
   m_ObjectHideFlags: 0
@@ -1937,6 +1946,9 @@ MonoBehaviour:
   verticalOffset: 1.2
   cooldownSeconds: 1
   keepCurrentY: 0
+  proximitySound: {fileID: 8300000, guid: 191047cc3db95a741af12a1f8b69fb51, type: 3}
+  proximityVolume: 1
+  soundHeightOffset: 1.2
 --- !u!1 &944424040909913036
 GameObject:
   m_ObjectHideFlags: 0
