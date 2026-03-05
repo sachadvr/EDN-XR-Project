@@ -6,8 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/VR Scene.unity
-    guid: 93a590788af8e464bb8ed7e65b78c43f
+    path: Assets/Scenes/SaveurSavante.unity
+    guid: 4cce9363fe7d8084d91e7b7641312c07
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: ce18139cfa441194ebbca9060709159d,
       type: 2}
