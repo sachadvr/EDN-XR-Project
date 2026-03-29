@@ -3,6 +3,6 @@
     "RequestTimeoutSeconds": 10,
     "AutoStartServer": true,
     "EnableInfoLogs": true,
-    "NpmExecutablePath": "",
+    "NpmExecutablePath": "/opt/homebrew/bin/npm",
     "AllowRemoteConnections": false
 }
