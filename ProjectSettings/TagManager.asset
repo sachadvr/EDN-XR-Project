@@ -6,6 +6,11 @@ TagManager:
   tags:
   - RightHand
   - LeftHand
+  - Jarre
+  - TableSpot
+  - PlateSpot
+  - Bowl
+  - Food
   layers:
   - Default
   - TransparentFX
