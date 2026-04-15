@@ -39,7 +39,18 @@ namespace SaveurSavante.Chapters.Egypte
             }
 
             foodsInJar.Add(food);
-            food.gameObject.SetActive(false); // Cacher l'aliment
+            
+            // Désactiver la physique et le grab pour un relachement propre
+            var grab = food.GetComponent<UnityEngine.XR.Interaction.Toolkit.XRGrabInteractable>();
+            if (grab != null) grab.enabled = false;
+            
+            var rb = food.GetComponent<Rigidbody>();
+            if (rb != null) rb.isKinematic = true;
+            
+            // Le placer visuellement à l'intérieur
+            food.transform.SetParent(this.transform);
+            food.transform.localPosition = new Vector3(0, 0.2f + (foodsInJar.Count * 0.15f), 0);
+            food.transform.localRotation = Quaternion.identity;
 
             string status = $"🫙 Aliment ajouté : {foodsInJar.Count}/{requiredFoodCount}";
             ShowStatus(status, 2f);
@@ -82,8 +93,8 @@ namespace SaveurSavante.Chapters.Egypte
             {
                 statusText.text = message;
                 statusText.gameObject.SetActive(true);
-                CancelInvoke(nameof(HideStatus));
-                Invoke(nameof(HideStatus), duration);
+                // CancelInvoke(nameof(HideStatus));
+                // Invoke(nameof(HideStatus), duration);
             }
         }
 

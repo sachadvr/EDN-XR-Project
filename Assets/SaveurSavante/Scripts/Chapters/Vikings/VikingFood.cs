@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using SaveurSavante.Interactions;
 
 namespace SaveurSavante.Chapters.Vikings
 {
@@ -37,12 +38,14 @@ namespace SaveurSavante.Chapters.Vikings
         private XRGrabInteractable grabInteractable;
         private XRBaseInteractor currentInteractor;
         private Renderer objectRenderer;
+        private GrabOutlineFeedback outlineFeedback;
         private float lastEatTime = 0f;
 
         private void Awake()
         {
             grabInteractable = GetComponent<XRGrabInteractable>();
             objectRenderer = GetComponentInChildren<Renderer>();
+            outlineFeedback = new GrabOutlineFeedback(gameObject);
 
             // Valeurs initiales (aliment cru)
             currentEnergy = rawEnergyValue;
@@ -53,12 +56,15 @@ namespace SaveurSavante.Chapters.Vikings
                 grabInteractable.selectEntered.AddListener(OnGrabbed);
                 grabInteractable.selectExited.AddListener(OnReleased);
                 grabInteractable.activated.AddListener(OnActivated);
+                grabInteractable.hoverEntered.AddListener(OnHoverEntered);
+                grabInteractable.hoverExited.AddListener(OnHoverExited);
             }
         }
 
         private void OnGrabbed(SelectEnterEventArgs args)
         {
             currentInteractor = args.interactorObject as XRBaseInteractor;
+            outlineFeedback?.SetVisible(false);
         }
 
         private void OnReleased(SelectExitEventArgs args)
@@ -90,6 +96,16 @@ namespace SaveurSavante.Chapters.Vikings
                     EatFood();
                 }
             }
+        }
+
+        private void OnHoverEntered(HoverEnterEventArgs args)
+        {
+            outlineFeedback?.SetVisible(true);
+        }
+
+        private void OnHoverExited(HoverExitEventArgs args)
+        {
+            outlineFeedback?.SetVisible(false);
         }
 
         private void EatFood()
@@ -235,7 +251,11 @@ namespace SaveurSavante.Chapters.Vikings
                 grabInteractable.selectEntered.RemoveListener(OnGrabbed);
                 grabInteractable.selectExited.RemoveListener(OnReleased);
                 grabInteractable.activated.RemoveListener(OnActivated);
+                grabInteractable.hoverEntered.RemoveListener(OnHoverEntered);
+                grabInteractable.hoverExited.RemoveListener(OnHoverExited);
             }
+
+            outlineFeedback?.Dispose();
         }
     }
 }

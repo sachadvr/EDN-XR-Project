@@ -29,8 +29,11 @@ namespace SaveurSavante.Chapters.Egypte
             GrabbableObject otherGrabbable = other.GetComponent<GrabbableObject>();
             if (otherGrabbable != null && otherGrabbable.objectType == "sel")
             {
-                ApplySalt();
-                Destroy(other.gameObject); // Consommer le sel
+                if (!hasSalt)
+                {
+                    ApplySalt();
+                    // On ne détruit plus le sel pour qu'il puisse être réutilisé sur les autres aliments !
+                }
             }
 
             // Vérifier si l'aliment salé touche une jarre

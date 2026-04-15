@@ -187,6 +187,9 @@ namespace SaveurSavante.Chapters.Egypte
                 // Réactiver l'aliment
                 food.gameObject.SetActive(true);
                 food.transform.SetParent(null);
+                
+                var rb = food.GetComponent<Rigidbody>();
+                if (rb != null) rb.isKinematic = false;
 
                 // Remettre à sa position initiale ou une position de reset
                 if (i < foodResetPositions.Length && foodResetPositions[i] != null)

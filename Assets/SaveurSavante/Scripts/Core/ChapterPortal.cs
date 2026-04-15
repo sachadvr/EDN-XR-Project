@@ -5,12 +5,14 @@ using SaveurSavante.Core;
 
 namespace SaveurSavante.Core
 {
+    [RequireComponent(typeof(Collider))]
     public class ChapterPortal : MonoBehaviour
     {
         [Header("Configuration")]
         public string chapterName; // "Egypte", "Vikings", "Titanic", "Gandhi"
         public Transform teleportDestination;
         public bool isCompleted = false;
+        public float teleportCooldown = 0.5f;
 
         [Header("Visual")]
         public Material activeMaterial;
@@ -22,6 +24,7 @@ namespace SaveurSavante.Core
 
         private Renderer portalRenderer;
         private XRSimpleInteractable simpleInteractable;
+        private float lastTeleportTime = float.NegativeInfinity;
 
         private void Awake()
         {
@@ -36,6 +39,7 @@ namespace SaveurSavante.Core
 
         private void Start()
         {
+            CheckCompletionStatus();
             UpdateVisualState();
 
             // S'abonner aux événements du GameManager
@@ -96,22 +100,56 @@ namespace SaveurSavante.Core
 
         private void OnPortalActivated(SelectEnterEventArgs args)
         {
+            XROrigin xrOrigin = args.interactorObject.transform.GetComponentInParent<XROrigin>();
+            if (xrOrigin == null)
+            {
+                xrOrigin = FindObjectOfType<XROrigin>();
+            }
+
+            TeleportPlayer(xrOrigin);
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            XROrigin xrOrigin = other.GetComponentInParent<XROrigin>();
+            if (xrOrigin == null)
+            {
+                return;
+            }
+
+            TeleportPlayer(xrOrigin);
+        }
+
+        private void TeleportPlayer(XROrigin xrOrigin)
+        {
             if (isCompleted)
             {
                 Debug.Log($"🚪 Portail {chapterName} déjà complété !");
                 return;
             }
 
-            TeleportPlayer(args.interactorObject.transform);
-        }
-
-        private void TeleportPlayer(Transform playerTransform)
-        {
             if (teleportDestination == null)
             {
                 Debug.LogError($"❌ Destination de téléportation non définie pour {chapterName}");
                 return;
             }
+
+            if (xrOrigin == null)
+            {
+                xrOrigin = FindObjectOfType<XROrigin>();
+                if (xrOrigin == null)
+                {
+                    Debug.LogError($"❌ Aucun XROrigin trouvé pour téléporter vers {chapterName}");
+                    return;
+                }
+            }
+
+            if (Time.time - lastTeleportTime < teleportCooldown)
+            {
+                return;
+            }
+
+            lastTeleportTime = Time.time;
 
             // Jouer le son
             if (teleportSound != null)
@@ -120,18 +158,13 @@ namespace SaveurSavante.Core
             }
 
             // Téléporter le joueur
-            XROrigin xrOrigin = FindObjectOfType<XROrigin>();
-            if (xrOrigin != null)
+            xrOrigin.transform.SetPositionAndRotation(teleportDestination.position, teleportDestination.rotation);
+
+            Debug.Log($"✨ Téléportation vers {chapterName} ! Position: {teleportDestination.position}");
+
+            if (StoryManager.Instance != null)
             {
-                xrOrigin.transform.position = teleportDestination.position;
-                xrOrigin.transform.rotation = teleportDestination.rotation;
-
-                Debug.Log($"✨ Téléportation vers {chapterName} ! Position: {teleportDestination.position}");
-
-                if (StoryManager.Instance != null)
-                {
-                    StoryManager.Instance.ShowIntroduction(chapterName);
-                }
+                StoryManager.Instance.ShowIntroduction(chapterName);
             }
         }
 

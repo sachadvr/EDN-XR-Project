@@ -24,7 +24,7 @@ namespace SaveurSavante.Chapters.Gandhi
         public TextMeshPro statusText;
 
         [Header("État")]
-        public List<GandhiFood> foodsInBowl = new List<GandhiFood>();
+        public List<GandhiFood> placedFoods = new List<GandhiFood>();
         public int fruitCount = 0;
         public int vegetableCount = 0;
         public int grainCount = 0;
@@ -48,7 +48,7 @@ namespace SaveurSavante.Chapters.Gandhi
         {
             if (isComplete) return;
 
-            foodsInBowl.Add(food);
+            placedFoods.Add(food);
 
             // Compter par type
             switch (food.foodType)
@@ -89,7 +89,7 @@ namespace SaveurSavante.Chapters.Gandhi
 
             if (statusText != null)
             {
-                statusText.text = $"Bol: {foodsInBowl.Count} aliments\n🍎 {fruitCount}  🥕 {vegetableCount}  🌾 {grainCount}";
+                statusText.text = $"Bol: {placedFoods.Count} aliments\n🍎 {fruitCount}  🥕 {vegetableCount}  🌾 {grainCount}";
             }
         }
 
@@ -99,8 +99,8 @@ namespace SaveurSavante.Chapters.Gandhi
             {
                 statusText.text = message;
                 statusText.gameObject.SetActive(true);
-                CancelInvoke(nameof(HideStatus));
-                Invoke(nameof(HideStatus), duration);
+                // CancelInvoke(nameof(HideStatus));
+                // Invoke(nameof(HideStatus), duration);
             }
         }
 
@@ -179,7 +179,7 @@ namespace SaveurSavante.Chapters.Gandhi
         public void ResetBowl()
         {
             // Remettre tous les aliments à leur position initiale
-            foreach (var food in foodsInBowl)
+            foreach (var food in placedFoods)
             {
                 if (food != null)
                 {
@@ -187,7 +187,7 @@ namespace SaveurSavante.Chapters.Gandhi
                 }
             }
 
-            foodsInBowl.Clear();
+            placedFoods.Clear();
             fruitCount = 0;
             vegetableCount = 0;
             grainCount = 0;

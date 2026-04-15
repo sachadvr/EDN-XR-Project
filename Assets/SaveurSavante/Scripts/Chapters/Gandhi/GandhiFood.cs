@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using SaveurSavante.Interactions;
 
 namespace SaveurSavante.Chapters.Gandhi
 {
@@ -25,11 +26,13 @@ namespace SaveurSavante.Chapters.Gandhi
 
         private XRGrabInteractable grabInteractable;
         private Renderer objectRenderer;
+        private GrabOutlineFeedback outlineFeedback;
 
         private void Awake()
         {
             grabInteractable = GetComponent<XRGrabInteractable>();
             objectRenderer = GetComponentInChildren<Renderer>();
+            outlineFeedback = new GrabOutlineFeedback(gameObject);
 
             // Sauvegarder la position initiale
             originalPosition = transform.position;
@@ -44,11 +47,15 @@ namespace SaveurSavante.Chapters.Gandhi
             {
                 grabInteractable.selectEntered.AddListener(OnGrabbed);
                 grabInteractable.selectExited.AddListener(OnReleased);
+                grabInteractable.hoverEntered.AddListener(OnHoverEntered);
+                grabInteractable.hoverExited.AddListener(OnHoverExited);
             }
         }
 
         private void OnGrabbed(SelectEnterEventArgs args)
         {
+            outlineFeedback?.SetVisible(false);
+
             // Highlight quand on prend
             if (objectRenderer != null && highlightMaterial != null)
             {
@@ -61,6 +68,28 @@ namespace SaveurSavante.Chapters.Gandhi
                 isInBowl = false;
                 transform.SetParent(null);
             }
+        }
+
+        private void OnHoverEntered(HoverEnterEventArgs args)
+        {
+            if (objectRenderer != null && highlightMaterial != null)
+            {
+                objectRenderer.material = highlightMaterial;
+                return;
+            }
+
+            outlineFeedback?.SetVisible(true);
+        }
+
+        private void OnHoverExited(HoverExitEventArgs args)
+        {
+            if (objectRenderer != null && originalMaterial != null)
+            {
+                objectRenderer.material = originalMaterial;
+                return;
+            }
+
+            outlineFeedback?.SetVisible(false);
         }
 
         private void OnReleased(SelectExitEventArgs args)
@@ -172,7 +201,11 @@ namespace SaveurSavante.Chapters.Gandhi
             {
                 grabInteractable.selectEntered.RemoveListener(OnGrabbed);
                 grabInteractable.selectExited.RemoveListener(OnReleased);
+                grabInteractable.hoverEntered.RemoveListener(OnHoverEntered);
+                grabInteractable.hoverExited.RemoveListener(OnHoverExited);
             }
+
+            outlineFeedback?.Dispose();
         }
     }
 }

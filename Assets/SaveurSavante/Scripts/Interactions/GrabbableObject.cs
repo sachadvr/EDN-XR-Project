@@ -19,6 +19,7 @@ namespace SaveurSavante.Interactions
         private Renderer objectRenderer;
 
         private XRGrabInteractable grabInteractable;
+        private GrabOutlineFeedback outlineFeedback;
 
         private void Awake()
         {
@@ -29,6 +30,8 @@ namespace SaveurSavante.Interactions
             {
                 originalMaterial = objectRenderer.material;
             }
+
+            outlineFeedback = new GrabOutlineFeedback(gameObject);
 
             if (grabInteractable != null)
             {
@@ -42,6 +45,7 @@ namespace SaveurSavante.Interactions
         private void OnGrab(SelectEnterEventArgs args)
         {
             isGrabbed = true;
+            outlineFeedback?.SetVisible(false);
             Debug.Log($"✋ Object grabé : {objectName}");
         }
 
@@ -56,7 +60,10 @@ namespace SaveurSavante.Interactions
             if (objectRenderer != null && highlightMaterial != null)
             {
                 objectRenderer.material = highlightMaterial;
+                return;
             }
+
+            outlineFeedback?.SetVisible(true);
         }
 
         private void OnHoverExit(HoverExitEventArgs args)
@@ -64,7 +71,10 @@ namespace SaveurSavante.Interactions
             if (objectRenderer != null && originalMaterial != null)
             {
                 objectRenderer.material = originalMaterial;
+                return;
             }
+
+            outlineFeedback?.SetVisible(false);
         }
 
         private void OnDestroy()
@@ -76,6 +86,8 @@ namespace SaveurSavante.Interactions
                 grabInteractable.hoverEntered.RemoveListener(OnHoverEnter);
                 grabInteractable.hoverExited.RemoveListener(OnHoverExit);
             }
+
+            outlineFeedback?.Dispose();
         }
     }
 }

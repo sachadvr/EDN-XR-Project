@@ -138,8 +138,8 @@ namespace SaveurSavante.Chapters.Vikings
             {
                 statusText.text = message;
                 statusText.gameObject.SetActive(true);
-                CancelInvoke(nameof(HideStatus));
-                Invoke(nameof(HideStatus), duration);
+                // CancelInvoke(nameof(HideStatus));
+                // Invoke(nameof(HideStatus), duration);
             }
         }
 

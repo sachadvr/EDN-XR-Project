@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using SaveurSavante.Interactions;
 
 namespace SaveurSavante.Chapters.Titanic
 {
@@ -21,6 +22,7 @@ namespace SaveurSavante.Chapters.Titanic
 
         private XRGrabInteractable grabInteractable;
         private Renderer objectRenderer;
+        private GrabOutlineFeedback outlineFeedback;
         private Vector3 originalPosition;
         private Quaternion originalRotation;
 
@@ -28,6 +30,7 @@ namespace SaveurSavante.Chapters.Titanic
         {
             grabInteractable = GetComponent<XRGrabInteractable>();
             objectRenderer = GetComponentInChildren<Renderer>();
+            outlineFeedback = new GrabOutlineFeedback(gameObject);
 
             originalPosition = transform.position;
             originalRotation = transform.rotation;
@@ -41,11 +44,15 @@ namespace SaveurSavante.Chapters.Titanic
             {
                 grabInteractable.selectEntered.AddListener(OnGrabbed);
                 grabInteractable.selectExited.AddListener(OnReleased);
+                grabInteractable.hoverEntered.AddListener(OnHoverEntered);
+                grabInteractable.hoverExited.AddListener(OnHoverExited);
             }
         }
 
         private void OnGrabbed(SelectEnterEventArgs args)
         {
+            outlineFeedback?.SetVisible(false);
+
             // Réinitialiser si on reprend un aliment déjà placé
             if (isPlaced)
             {
@@ -58,6 +65,28 @@ namespace SaveurSavante.Chapters.Titanic
             {
                 objectRenderer.material = highlightMaterial;
             }
+        }
+
+        private void OnHoverEntered(HoverEnterEventArgs args)
+        {
+            if (objectRenderer != null && highlightMaterial != null)
+            {
+                objectRenderer.material = highlightMaterial;
+                return;
+            }
+
+            outlineFeedback?.SetVisible(true);
+        }
+
+        private void OnHoverExited(HoverExitEventArgs args)
+        {
+            if (objectRenderer != null && originalMaterial != null)
+            {
+                objectRenderer.material = originalMaterial;
+                return;
+            }
+
+            outlineFeedback?.SetVisible(false);
         }
 
         private void OnReleased(SelectExitEventArgs args)
@@ -154,7 +183,11 @@ namespace SaveurSavante.Chapters.Titanic
             {
                 grabInteractable.selectEntered.RemoveListener(OnGrabbed);
                 grabInteractable.selectExited.RemoveListener(OnReleased);
+                grabInteractable.hoverEntered.RemoveListener(OnHoverEntered);
+                grabInteractable.hoverExited.RemoveListener(OnHoverExited);
             }
+
+            outlineFeedback?.Dispose();
         }
     }
 }
