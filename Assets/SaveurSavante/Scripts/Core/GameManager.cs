@@ -38,6 +38,15 @@ namespace SaveurSavante.Core
                         mc.convex = true;
                     }
                 }
+
+                foreach (Rigidbody rb in FindObjectsOfType<Rigidbody>(true))
+                {
+                    if (rb == null || rb.isKinematic)
+                        continue;
+
+                    rb.interpolation = RigidbodyInterpolation.Interpolate;
+                    rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+                }
                 
                 // Corrige les Canvas (Panel) invisibles en VR
                 foreach (Canvas canvas in FindObjectsOfType<Canvas>(true))

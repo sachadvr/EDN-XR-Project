@@ -345,7 +345,7 @@
                 {
                     "name": "",
                     "id": "e791caef-78d3-4f68-9104-212f73ac0642",
-                    "path": "<Keyboard>/space",
+                    "path": "<Keyboard>/leftAlt",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -433,7 +433,7 @@
                 {
                     "name": "",
                     "id": "5c889b78-f9fd-4cd7-96dd-5399428f6992",
-                    "path": "<Mouse>/middleButton",
+                    "path": "<Keyboard>/capsLock",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -455,7 +455,7 @@
                 {
                     "name": "",
                     "id": "3542472e-e883-407a-b967-5b879b2d7dc4",
-                    "path": "<Mouse>/rightButton",
+                    "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

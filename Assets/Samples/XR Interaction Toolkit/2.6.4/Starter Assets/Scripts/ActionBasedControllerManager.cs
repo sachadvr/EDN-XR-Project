@@ -331,14 +331,16 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
             // Start the coroutine that executes code after the Update phase (during yield null).
             // Since this behavior has an execution order that runs before the XRInteractionManager,
             // we use the coroutine to run after the selection events
-            StartCoroutine(m_AfterInteractionEventsRoutine);
+            if (m_AfterInteractionEventsRoutine != null)
+                StartCoroutine(m_AfterInteractionEventsRoutine);
         }
 
         protected void OnDisable()
         {
             TeardownInteractorEvents();
 
-            StopCoroutine(m_AfterInteractionEventsRoutine);
+            if (m_AfterInteractionEventsRoutine != null)
+                StopCoroutine(m_AfterInteractionEventsRoutine);
         }
 
         protected void Start()

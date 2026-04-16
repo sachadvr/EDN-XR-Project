@@ -81,6 +81,13 @@ namespace SaveurSavante.Core
                     status += $"<color=lightblue>Titanic</color>\nAssiette: {plateManager.placedFoods.Count}/5\nScore: {plateManager.presentationScore}\n\n";
                 }
 
+                // Vikings
+                var nutritionManager = FindObjectOfType<Chapters.Vikings.NutritionManager>();
+                if (nutritionManager != null)
+                {
+                    status += $"<color=orange>Vikings</color>\nPosés: {nutritionManager.placedFoods.Count}\nMangés: {nutritionManager.eatenFoods.Count}\nÉnergie: {nutritionManager.currentEnergy:F0}/{nutritionManager.targetEnergy:F0}\nSatiété: {nutritionManager.currentSatiety:F0}/{nutritionManager.targetSatiety:F0}\n\n";
+                }
+
                 // Egypte
                 var jarre = FindObjectOfType<Chapters.Egypte.Jarre>();
                 if (jarre != null)

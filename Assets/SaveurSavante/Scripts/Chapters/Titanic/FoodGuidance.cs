@@ -25,7 +25,7 @@ namespace SaveurSavante.Chapters.Titanic
         [Header("Messages")]
         public string[] guidanceMessages = new string[]
         {
-            "🍯 Le plat a besoin de quelque chose de sucré...",
+            "Le plat a besoin de quelque chose de sucré...",
             "🧂 Un élément salé apporterait de la profondeur...",
             "🍋 Une touche acide équilibrerait les saveurs...",
             "☕ Quelque chose d'amer pour la complexité..."
