@@ -36,12 +36,18 @@ namespace SaveurSavante.Chapters.Gandhi
         private void Start()
         {
             treasureHunt = GetComponent<TreasureHunt>();
+            if (treasureHunt == null) treasureHunt = FindObjectOfType<TreasureHunt>();
+        }
 
-            if (!hasShownIntro)
+        public void ShowIntro()
+        {
+            if (hasShownIntro) return;
+            hasShownIntro = true;
+            if (WristHUD.Instance != null)
             {
-                hasShownIntro = true;
-                ShowStatus("🧘 Gandhi a besoin de ton aide !\nRésous les énigmes pour remplir le bol.", 5f);
+                WristHUD.Instance.SetStory("🧘 Gandhi a besoin de ton aide ! Résous les énigmes pour remplir le bol.");
             }
+            if (treasureHunt != null) treasureHunt.StartHunt();
         }
 
         public void AddFood(GandhiFood food)
@@ -95,20 +101,14 @@ namespace SaveurSavante.Chapters.Gandhi
 
         private void ShowStatus(string message, float duration)
         {
-            if (statusText != null)
+            if (WristHUD.Instance != null)
+            {
+                WristHUD.Instance.SetStatus(message);
+            }
+            else if (statusText != null)
             {
                 statusText.text = message;
                 statusText.gameObject.SetActive(true);
-                // CancelInvoke(nameof(HideStatus));
-                // Invoke(nameof(HideStatus), duration);
-            }
-        }
-
-        private void HideStatus()
-        {
-            if (statusText != null)
-            {
-                statusText.gameObject.SetActive(false);
             }
         }
 

@@ -43,15 +43,20 @@ namespace SaveurSavante.Chapters.Vikings
             UpdateUI();
         }
 
+        public void ShowIntro()
+        {
+            if (hasShownIntro) return;
+            hasShownIntro = true;
+            if (WristHUD.Instance != null)
+            {
+                WristHUD.Instance.SetStory($"🛡️ Vikings — {introductionText}");
+                WristHUD.Instance.SetStatus("Cuis les aliments au feu, place-les sur la table puis mange-les.");
+            }
+        }
+
         public void AddFood(VikingFood food, Transform placementSpot)
         {
             if (isComplete) return;
-
-            if (!hasShownIntro)
-            {
-                hasShownIntro = true;
-                ShowStatus(introductionText, 5f);
-            }
 
             // Vérifier si la place est déjà occupée
             foreach (var placedFood in placedFoods)
@@ -134,20 +139,14 @@ namespace SaveurSavante.Chapters.Vikings
 
         private void ShowStatus(string message, float duration)
         {
-            if (statusText != null)
+            if (SaveurSavante.Core.WristHUD.Instance != null)
+            {
+                SaveurSavante.Core.WristHUD.Instance.SetStatus(message);
+            }
+            else if (statusText != null)
             {
                 statusText.text = message;
                 statusText.gameObject.SetActive(true);
-                // CancelInvoke(nameof(HideStatus));
-                // Invoke(nameof(HideStatus), duration);
-            }
-        }
-
-        private void HideStatus()
-        {
-            if (statusText != null)
-            {
-                statusText.gameObject.SetActive(false);
             }
         }
 

@@ -27,12 +27,14 @@ namespace SaveurSavante.Chapters.Gandhi
         private XRGrabInteractable grabInteractable;
         private Renderer objectRenderer;
         private GrabOutlineFeedback outlineFeedback;
+        private Rigidbody rb;
 
         private void Awake()
         {
             grabInteractable = GetComponent<XRGrabInteractable>();
             objectRenderer = GetComponentInChildren<Renderer>();
             outlineFeedback = new GrabOutlineFeedback(gameObject);
+            rb = GetComponent<Rigidbody>();
 
             // Sauvegarder la position initiale
             originalPosition = transform.position;
@@ -102,38 +104,32 @@ namespace SaveurSavante.Chapters.Gandhi
 
             if (isInBowl) return;
 
-            // Vérifier si l'aliment est au-dessus du bol
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.3f);
-            foreach (var collider in colliders)
+            BowlManager bowl = FindNearestBowl(1.2f);
+            if (bowl != null)
             {
-                // Vérifier si c'est le bol
-                if (collider.GetComponent<BowlManager>() != null || collider.CompareTag("Bowl"))
+                TreasureHunt treasureHunt = FindObjectOfType<TreasureHunt>();
+                if (treasureHunt != null && !treasureHunt.isComplete)
                 {
-                    // Essayer avec TreasureHunt d'abord
-                    TreasureHunt treasureHunt = FindObjectOfType<TreasureHunt>();
-                    if (treasureHunt != null)
-                    {
-                        bool correct = treasureHunt.TrySolveRiddle(this, transform);
-                        if (correct)
-                        {
-                            SnapToBowl(collider.transform);
-                            return;
-                        }
-                        else
-                        {
-                            // Mauvaise réponse - retourner à la position initiale
-                            ReturnToSpawn();
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        // Pas de TreasureHunt, comportement normal
-                        SnapToBowl(collider.transform);
-                        return;
-                    }
+                    bool correct = treasureHunt.TrySolveRiddle(this, transform);
+                    if (correct) { SnapToBowl(bowl.transform); return; }
+                    ReturnToSpawn();
+                    return;
                 }
+                SnapToBowl(bowl.transform);
+                return;
             }
+        }
+
+        private BowlManager FindNearestBowl(float maxDistance)
+        {
+            BowlManager best = null;
+            float bestSqr = maxDistance * maxDistance;
+            foreach (var b in FindObjectsOfType<BowlManager>())
+            {
+                float d = (b.transform.position - transform.position).sqrMagnitude;
+                if (d < bestSqr) { bestSqr = d; best = b; }
+            }
+            return best;
         }
 
         private void SnapToBowl(Transform bowl)
@@ -150,6 +146,14 @@ namespace SaveurSavante.Chapters.Gandhi
             transform.position = bowl.position + randomOffset;
             transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
             transform.SetParent(bowl);
+
+            if (rb != null)
+            {
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.isKinematic = true;
+                rb.useGravity = false;
+            }
 
             // Désactiver le grab une fois dans le bol
             if (grabInteractable != null)

@@ -88,6 +88,12 @@ namespace SaveurSavante.Core
                 AudioSource.PlayClipAtPoint(returnSound, transform.position);
             }
 
+            if (WristHUD.Instance != null)
+            {
+                WristHUD.Instance.SetStory("Bienvenue dans Saveur Savante.\nChoisis un portail pour commencer.");
+                WristHUD.Instance.SetStatus("");
+            }
+
             // Désactiver après utilisation
             gameObject.SetActive(false);
             isActive = false;

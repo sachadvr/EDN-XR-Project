@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 using System.Collections.Generic;
 using SaveurSavante.Core;
 using TMPro;
@@ -7,8 +8,10 @@ namespace SaveurSavante.Chapters.Egypte
 {
     public class Jarre : MonoBehaviour
     {
+        public float offeringDetectionRadius = 1.5f;
+        private XRGrabInteractable grab;
         [Header("Configuration")]
-        public int requiredFoodCount = 3;
+        public int requiredFoodCount = 1;
         public string chapterName = "Egypte";
 
         [Header("Feedback")]
@@ -26,17 +29,49 @@ namespace SaveurSavante.Chapters.Egypte
 
         private void Start()
         {
+            grab = GetComponent<XRGrabInteractable>();
+            if (grab == null) grab = GetComponentInChildren<XRGrabInteractable>();
+        }
+
+        private void Update()
+        {
+            if (isComplete) return;
+            if (foodsInJar.Count < requiredFoodCount) return;
+            if (grab != null && grab.isSelected) return;
+
+            OfferingZone zone = FindNearestZone(offeringDetectionRadius);
+            if (zone != null)
+            {
+                zone.TriggerValidation(this);
+            }
+        }
+
+        private OfferingZone FindNearestZone(float maxDistance)
+        {
+            OfferingZone best = null;
+            float bestSqr = maxDistance * maxDistance;
+            foreach (var z in FindObjectsOfType<OfferingZone>())
+            {
+                float d = (z.transform.position - transform.position).sqrMagnitude;
+                if (d < bestSqr) { bestSqr = d; best = z; }
+            }
+            return best;
+        }
+
+        public void ShowIntro()
+        {
+            if (hasShownIntro) return;
+            hasShownIntro = true;
+            if (WristHUD.Instance != null)
+            {
+                WristHUD.Instance.SetStory("🫙 Égypte — Cléopâtre exige une offrande parfaite. Sale les aliments puis dépose-les dans la jarre.");
+                WristHUD.Instance.SetStatus($"Aliments salés à déposer: 0/{requiredFoodCount}");
+            }
         }
 
         public void AddFood(SaltApplication food)
         {
             if (isComplete) return;
-
-            if (!hasShownIntro)
-            {
-                hasShownIntro = true;
-                ShowStatus("🫙 Cléopâtre exige une offrande parfaite !\nSale les aliments et dépose-les dans la jarre.", 5f);
-            }
 
             foodsInJar.Add(food);
             
@@ -89,20 +124,14 @@ namespace SaveurSavante.Chapters.Egypte
 
         private void ShowStatus(string message, float duration)
         {
-            if (statusText != null)
+            if (SaveurSavante.Core.WristHUD.Instance != null)
+            {
+                SaveurSavante.Core.WristHUD.Instance.SetStatus(message);
+            }
+            else if (statusText != null)
             {
                 statusText.text = message;
                 statusText.gameObject.SetActive(true);
-                // CancelInvoke(nameof(HideStatus));
-                // Invoke(nameof(HideStatus), duration);
-            }
-        }
-
-        private void HideStatus()
-        {
-            if (statusText != null)
-            {
-                statusText.gameObject.SetActive(false);
             }
         }
 

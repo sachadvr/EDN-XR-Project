@@ -23,6 +23,7 @@ namespace SaveurSavante.Chapters.Titanic
         private XRGrabInteractable grabInteractable;
         private Renderer objectRenderer;
         private GrabOutlineFeedback outlineFeedback;
+        private Rigidbody rb;
         private Vector3 originalPosition;
         private Quaternion originalRotation;
 
@@ -30,6 +31,7 @@ namespace SaveurSavante.Chapters.Titanic
         {
             grabInteractable = GetComponent<XRGrabInteractable>();
             objectRenderer = GetComponentInChildren<Renderer>();
+            rb = GetComponent<Rigidbody>();
             outlineFeedback = new GrabOutlineFeedback(gameObject);
 
             originalPosition = transform.position;
@@ -99,22 +101,35 @@ namespace SaveurSavante.Chapters.Titanic
 
             if (isPlaced) return;
 
-            // Vérifier si l'aliment est au-dessus de l'assiette
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.3f);
-            foreach (var collider in colliders)
+            PlateManager plate = FindNearestPlate(1.2f);
+            if (plate != null)
             {
-                PlateManager plate = collider.GetComponent<PlateManager>();
-                if (plate != null)
-                {
-                    // Trouver la place libre la plus proche
-                    Transform spot = FindNearestSpot(plate.transform);
-                    if (spot != null)
-                    {
-                        PlaceOnPlate(plate, spot);
-                        return;
-                    }
-                }
+                Transform spot = FindNearestSpot(plate.transform);
+                if (spot != null) { PlaceOnPlate(plate, spot); return; }
+                PlaceOnPlate(plate, plate.transform);
+                return;
             }
+
+            // Pas placé sur assiette → reste figé (pas de gravité)
+            if (rb != null)
+            {
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.isKinematic = true;
+                rb.useGravity = false;
+            }
+        }
+
+        private PlateManager FindNearestPlate(float maxDistance)
+        {
+            PlateManager best = null;
+            float bestSqr = maxDistance * maxDistance;
+            foreach (var p in FindObjectsOfType<PlateManager>())
+            {
+                float d = (p.transform.position - transform.position).sqrMagnitude;
+                if (d < bestSqr) { bestSqr = d; best = p; }
+            }
+            return best;
         }
 
         private Transform FindNearestSpot(Transform plateTransform)
@@ -138,6 +153,15 @@ namespace SaveurSavante.Chapters.Titanic
             transform.position = spot.position;
             transform.rotation = spot.rotation;
             transform.SetParent(spot);
+
+            // Lock physics: kinematic + no gravity pour rester sur le spot
+            if (rb != null)
+            {
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.isKinematic = true;
+                rb.useGravity = false;
+            }
 
             // Désactiver le grab une fois placé
             if (grabInteractable != null)

@@ -71,7 +71,9 @@ namespace SaveurSavante.Core
             {
                 canvasGroup = storyPanel.AddComponent<CanvasGroup>();
             }
-            storyPanel.SetActive(false);
+            // Sidebar always visible
+            storyPanel.SetActive(true);
+            canvasGroup.alpha = 1f;
         }
 
         public void ShowIntroduction(string chapterName)
@@ -111,15 +113,25 @@ namespace SaveurSavante.Core
 
         private void ShowStoryText(string text)
         {
+            // Mirror to wrist HUD if present
+            if (WristHUD.Instance != null)
+            {
+                WristHUD.Instance.SetStory(text);
+            }
+
             if (storyText != null)
             {
                 storyText.text = text;
             }
 
+            // Sidebar stays always visible — no fade
+            if (storyPanel != null && !storyPanel.activeSelf)
+            {
+                storyPanel.SetActive(true);
+            }
             if (canvasGroup != null)
             {
-                StopAllCoroutines();
-                StartCoroutine(ShowTextCoroutine());
+                canvasGroup.alpha = 1f;
             }
 
             Debug.Log($"📜 Histoire: {text}");
@@ -128,31 +140,8 @@ namespace SaveurSavante.Core
         private IEnumerator ShowTextCoroutine()
         {
             storyPanel.SetActive(true);
-
-            // Fade in
-            float elapsed = 0f;
-            while (elapsed < fadeDuration)
-            {
-                canvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / fadeDuration);
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
             canvasGroup.alpha = 1f;
-
-            // Wait
-            yield return new WaitForSeconds(displayDuration);
-
-            // Fade out
-            elapsed = 0f;
-            while (elapsed < fadeDuration)
-            {
-                canvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
-            canvasGroup.alpha = 0f;
-
-            storyPanel.SetActive(false);
+            yield break;
         }
 
         public string GetChapterIntroduction(string chapterName)

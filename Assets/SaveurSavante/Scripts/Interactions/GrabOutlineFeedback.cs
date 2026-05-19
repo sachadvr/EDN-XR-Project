@@ -12,6 +12,9 @@ namespace SaveurSavante.Interactions
 
         public GrabOutlineFeedback(GameObject target, float scaleMultiplier = 1.04f)
         {
+            // Highlight désactivé
+            return;
+#pragma warning disable CS0162
             Material outlineMaterial = GetOutlineMaterial();
             if (target == null || outlineMaterial == null)
             {
@@ -49,6 +52,7 @@ namespace SaveurSavante.Interactions
 
                 outlineRenderers.Add(outlineRenderer);
             }
+#pragma warning restore CS0162
         }
 
         public void SetVisible(bool visible)

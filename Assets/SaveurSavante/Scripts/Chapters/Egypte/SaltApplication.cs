@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 using SaveurSavante.Interactions;
 
 namespace SaveurSavante.Chapters.Egypte
@@ -13,14 +14,50 @@ namespace SaveurSavante.Chapters.Egypte
         [Header("État")]
         public bool hasSalt = false;
         public bool isPreserved = false;
+        public bool isInJar = false;
+
+        public float jarDetectionRadius = 1.2f;
 
         private GrabbableObject grabbableObject;
         private Renderer objectRenderer;
+        private XRGrabInteractable grab;
 
         private void Awake()
         {
             grabbableObject = GetComponent<GrabbableObject>();
             objectRenderer = GetComponentInChildren<Renderer>();
+            grab = GetComponent<XRGrabInteractable>();
+            if (grab != null) grab.selectExited.AddListener(OnReleased);
+        }
+
+        private void OnDestroy()
+        {
+            if (grab != null) grab.selectExited.RemoveListener(OnReleased);
+        }
+
+        private void OnReleased(SelectExitEventArgs args)
+        {
+            if (isInJar) return;
+            if (!hasSalt) return;
+
+            Jarre jar = FindNearestJar(jarDetectionRadius);
+            if (jar != null)
+            {
+                jar.AddFood(this);
+                isInJar = true;
+            }
+        }
+
+        private Jarre FindNearestJar(float maxDistance)
+        {
+            Jarre best = null;
+            float bestSqr = maxDistance * maxDistance;
+            foreach (var j in FindObjectsOfType<Jarre>())
+            {
+                float d = (j.transform.position - transform.position).sqrMagnitude;
+                if (d < bestSqr) { bestSqr = d; best = j; }
+            }
+            return best;
         }
 
         private void OnTriggerEnter(Collider other)

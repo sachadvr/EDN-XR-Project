@@ -9,7 +9,7 @@ namespace SaveurSavante.Chapters.Egypte
     {
         [Header("Configuration")]
         public string chapterName = "Egypte";
-        public int requiredFoodCount = 3;
+        public int requiredFoodCount = 1;
 
         [Header("Positions")]
         public Transform jarreResetPosition;
@@ -33,13 +33,19 @@ namespace SaveurSavante.Chapters.Egypte
         {
             if (isValidating) return;
 
-            // Vérifier si c'est une jarre qui entre dans la zone
-            Jarre jarre = other.GetComponent<Jarre>();
+            Jarre jarre = other.GetComponentInParent<Jarre>();
             if (jarre != null && currentJarre == null)
             {
                 currentJarre = jarre;
                 ValidateOffering();
             }
+        }
+
+        public void TriggerValidation(Jarre jarre)
+        {
+            if (isValidating || currentJarre != null) return;
+            currentJarre = jarre;
+            ValidateOffering();
         }
 
         private void ValidateOffering()
@@ -204,14 +210,10 @@ namespace SaveurSavante.Chapters.Egypte
                 }
 
                 // Réactiver le grab
-                var grabbable = food.GetComponent<SaveurSavante.Interactions.GrabbableObject>();
-                if (grabbable != null)
+                var xrGrab = food.GetComponent<UnityEngine.XR.Interaction.Toolkit.XRGrabInteractable>();
+                if (xrGrab != null)
                 {
-                    var xrGrab = food.GetComponent<UnityEngine.XR.Interaction.Toolkit.XRGrabInteractable>();
-                    if (xrGrab != null)
-                    {
-                        xrGrab.enabled = true;
-                    }
+                    xrGrab.enabled = true;
                 }
             }
 

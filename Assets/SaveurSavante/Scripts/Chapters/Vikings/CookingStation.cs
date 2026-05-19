@@ -9,7 +9,7 @@ namespace SaveurSavante.Chapters.Vikings
     {
         [Header("Configuration")]
         public float cookingTime = 3f;
-        public Vector3 cookingZoneSize = new Vector3(10f, 2f, 10f);
+        public Vector3 cookingZoneSize = new Vector3(1.2f, 1.2f, 1.2f);
         public string chapterName = "Vikings";
 
         [Header("Effets")]

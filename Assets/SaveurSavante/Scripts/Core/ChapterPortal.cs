@@ -2,6 +2,10 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using Unity.XR.CoreUtils;
 using SaveurSavante.Core;
+using SaveurSavante.Chapters.Gandhi;
+using SaveurSavante.Chapters.Egypte;
+using SaveurSavante.Chapters.Vikings;
+using SaveurSavante.Chapters.Titanic;
 
 namespace SaveurSavante.Core
 {
@@ -165,6 +169,31 @@ namespace SaveurSavante.Core
             if (StoryManager.Instance != null)
             {
                 StoryManager.Instance.ShowIntroduction(chapterName);
+            }
+
+            ActivateChapter();
+        }
+
+        private void ActivateChapter()
+        {
+            switch (chapterName.ToLower())
+            {
+                case "gandhi":
+                    var bowl = FindObjectOfType<BowlManager>();
+                    if (bowl != null) bowl.ShowIntro();
+                    break;
+                case "egypte":
+                    var jar = FindObjectOfType<Jarre>();
+                    if (jar != null) jar.ShowIntro();
+                    break;
+                case "vikings":
+                    var nm = FindObjectOfType<NutritionManager>();
+                    if (nm != null) nm.ShowIntro();
+                    break;
+                case "titanic":
+                    var pm = FindObjectOfType<PlateManager>();
+                    if (pm != null) pm.ShowIntro();
+                    break;
             }
         }
 

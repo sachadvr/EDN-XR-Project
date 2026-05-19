@@ -37,15 +37,20 @@ namespace SaveurSavante.Chapters.Titanic
             foodGuidance = FindObjectOfType<FoodGuidance>();
         }
 
+        public void ShowIntro()
+        {
+            if (hasShownIntro) return;
+            hasShownIntro = true;
+            if (WristHUD.Instance != null)
+            {
+                WristHUD.Instance.SetStory("🚢 Titanic\nDresse une assiette équilibrée.\nMix les saveurs: sucré, salé, acide, amer.");
+                WristHUD.Instance.SetStatus("Saveurs: 0/4\nVise au moins 3 saveurs différentes.");
+            }
+        }
+
         public void AddFood(TitanicFood food, Transform spot)
         {
             if (isComplete) return;
-
-            if (!hasShownIntro)
-            {
-                hasShownIntro = true;
-                ShowStatus("🍽️ Bienvenue sur le Titanic !\nDresse une assiette équilibrée et élégante.", 5f);
-            }
 
             if (placedFoods.Count >= maxFoodItems)
             {
@@ -62,7 +67,20 @@ namespace SaveurSavante.Chapters.Titanic
                 foodGuidance.UpdatePresentationScore(presentationScore);
             }
 
-            string status = $"🍽️ {food.foodName} ajouté ! Présentation: {presentationScore:F0}, Équilibre: {balanceScore:F0}";
+            int sweet = 0, savory = 0, acidic = 0, bitter = 0;
+            foreach (var f in placedFoods)
+            {
+                switch (f.flavorProfile)
+                {
+                    case "sucré": sweet++; break;
+                    case "salé": savory++; break;
+                    case "acide": acidic++; break;
+                    case "amer": bitter++; break;
+                }
+            }
+            int variety = (sweet > 0 ? 1 : 0) + (savory > 0 ? 1 : 0) + (acidic > 0 ? 1 : 0) + (bitter > 0 ? 1 : 0);
+
+            string status = $"+{food.foodName} ({food.flavorProfile})\nSaveurs: {variety}/4\n🍬{sweet} 🧂{savory} 🍋{acidic} 🌿{bitter}";
             ShowStatus(status, 2f);
 
             UpdateScoreUI();
@@ -130,20 +148,14 @@ namespace SaveurSavante.Chapters.Titanic
 
         private void ShowStatus(string message, float duration)
         {
-            if (statusText != null)
+            if (SaveurSavante.Core.WristHUD.Instance != null)
+            {
+                SaveurSavante.Core.WristHUD.Instance.SetStatus(message);
+            }
+            else if (statusText != null)
             {
                 statusText.text = message;
                 statusText.gameObject.SetActive(true);
-                // CancelInvoke(nameof(HideStatus));
-                // Invoke(nameof(HideStatus), duration);
-            }
-        }
-
-        private void HideStatus()
-        {
-            if (statusText != null)
-                       {
-                statusText.gameObject.SetActive(false);
             }
         }
 
@@ -151,33 +163,14 @@ namespace SaveurSavante.Chapters.Titanic
         {
             if (isComplete) return;
 
-            float totalScore = (presentationScore + balanceScore) / 2f;
-
-            // Si on a FoodGuidance, on vérifie aussi s'il est complet
-            bool guidanceComplete = (foodGuidance == null) || foodGuidance.IsComplete();
-
-            if (guidanceComplete &&
-                totalScore >= requiredBalance * 100f &&
-                presentationScore >= requiredPresentation &&
-                placedFoods.Count >= 4)
+            if (presentationScore >= requiredPresentation && placedFoods.Count >= 4)
             {
                 CompleteChapter();
             }
             else if (placedFoods.Count >= 4)
             {
-                // Donner un feedback sur ce qui manque
-                string feedback = "";
-                if (!guidanceComplete)
-                    feedback = "L'assiette n'a pas tous les éléments requis...";
-                else if (presentationScore < requiredPresentation)
-                    feedback = $"La présentation pourrait être meilleure... ({presentationScore:F0}/100)";
-                else if (balanceScore < requiredBalance * 100f)
-                    feedback = $"L'équilibre des saveurs n'est pas optimal... ({balanceScore:F0}/100)";
-
-                if (!string.IsNullOrEmpty(feedback))
-                {
-                    ShowStatus(feedback, 4f);
-                }
+                string feedback = $"La présentation pourrait être meilleure... ({presentationScore:F0}/100)";
+                ShowStatus(feedback, 4f);
             }
         }
 

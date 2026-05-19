@@ -86,6 +86,15 @@ namespace SaveurSavante.Chapters.Vikings
         {
             currentInteractor = args.interactorObject as XRBaseInteractor;
             outlineFeedback?.SetVisible(false);
+
+            if (isPlaced && canBeEaten && !hasBeenEaten)
+            {
+                // Grabbing food from table = eating it
+                ApplyPhysicsState(true);
+                EatFood();
+                return;
+            }
+
             ApplyPhysicsState(true);
         }
 
@@ -316,12 +325,6 @@ namespace SaveurSavante.Chapters.Vikings
             }
             ApplyPhysicsState(false);
 
-            // Désactiver le grab une fois placé
-            if (grabInteractable != null)
-            {
-                grabInteractable.enabled = false;
-            }
-
             // Notifier le NutritionManager
             NutritionManager manager = FindObjectOfType<NutritionManager>();
             if (manager != null)
@@ -351,17 +354,14 @@ namespace SaveurSavante.Chapters.Vikings
             if (rb == null)
                 return;
 
-            rb.isKinematic = !dynamic;
-            rb.useGravity = dynamic;
+            // No gravity — items stay fixed in air when released
+            rb.isKinematic = true;
+            rb.useGravity = false;
             rb.detectCollisions = true;
-            rb.interpolation = dynamic ? RigidbodyInterpolation.Interpolate : RigidbodyInterpolation.None;
-            rb.collisionDetectionMode = dynamic ? CollisionDetectionMode.ContinuousDynamic : CollisionDetectionMode.Discrete;
-
-            if (!dynamic)
-            {
-                rb.velocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-            }
+            rb.interpolation = RigidbodyInterpolation.None;
+            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
         }
 
         private void OnDestroy()

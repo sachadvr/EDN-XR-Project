@@ -13,14 +13,13 @@ namespace SaveurSavante.Chapters.Gandhi
         [Header("Énigmes")]
         public string[] riddles = new string[]
         {
-            "🧘 'Gandhi marche vers la mer, il lui faut de la force intérieure. Quel fruit lui donnera de l'énergie ?'",
-            "🌱 'La vie vient de la terre. Quel légume le nourrira dans sa quête ?'",
-            "🌾 'Les graines de la patience portent leurs fruits. Que faut-il pour compléter le bol ?'",
-            "🥜 'La force des petites choses. Quelle graine donne la vitalité ?'"
+            "🍎 Gandhi a besoin d'un fruit.",
+            "🥕 Gandhi a besoin d'un légume.",
+            "🌾 Gandhi a besoin d'une graine."
         };
 
         [Header("Réponses attendues")]
-        public string[] expectedFoodTypes = new string[] { "fruit", "legume", "graine", "graine" };
+        public string[] expectedFoodTypes = new string[] { "fruit", "legume", "graine" };
 
         [Header("UI")]
         public TextMeshPro riddleText;
@@ -38,8 +37,12 @@ namespace SaveurSavante.Chapters.Gandhi
         public List<GandhiFood> foundFoods = new List<GandhiFood>();
         public bool isComplete = false;
 
-        private void Start()
+        private bool huntStarted = false;
+
+        public void StartHunt()
         {
+            if (huntStarted) return;
+            huntStarted = true;
             ShowCurrentRiddle();
         }
 
@@ -124,36 +127,29 @@ namespace SaveurSavante.Chapters.Gandhi
 
         private void ShowCurrentRiddle()
         {
-            if (currentRiddleIndex < riddles.Length && riddleText != null)
+            if (currentRiddleIndex >= riddles.Length) return;
+
+            string riddle = riddles[currentRiddleIndex];
+            string instr = $"Énigme {currentRiddleIndex + 1}/{riddles.Length}\n{riddle}";
+
+            if (riddleText != null) riddleText.text = riddle;
+            if (WristHUD.Instance != null) WristHUD.Instance.SetStatus(instr);
+
+            if (riddleSound != null)
             {
-                riddleText.text = riddles[currentRiddleIndex];
-
-                // Son d'énigme
-                if (riddleSound != null)
-                {
-                    AudioSource.PlayClipAtPoint(riddleSound, transform.position);
-                }
-
-                Debug.Log($"🧩 Énigme {currentRiddleIndex + 1}/{riddles.Length}: {riddles[currentRiddleIndex]}");
+                AudioSource.PlayClipAtPoint(riddleSound, transform.position);
             }
+
+            Debug.Log($"🧩 Énigme {currentRiddleIndex + 1}/{riddles.Length}: {riddle}");
         }
 
         private void ShowFeedback(string message)
         {
+            if (WristHUD.Instance != null) WristHUD.Instance.SetStory(message);
             if (feedbackText != null)
             {
                 feedbackText.text = message;
                 feedbackText.gameObject.SetActive(true);
-                CancelInvoke(nameof(HideFeedback));
-                Invoke(nameof(HideFeedback), 4f);
-            }
-        }
-
-        private void HideFeedback()
-        {
-            if (feedbackText != null)
-            {
-                feedbackText.gameObject.SetActive(false);
             }
         }
 
