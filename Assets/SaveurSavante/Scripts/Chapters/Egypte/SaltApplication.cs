@@ -98,16 +98,5 @@ namespace SaveurSavante.Chapters.Egypte
             Debug.Log($"🧂 Sel appliqué sur {gameObject.name} ! L'aliment est maintenant conservé.");
         }
 
-        public void Spoil()
-        {
-            if (!hasSalt)
-            {
-                if (objectRenderer != null && spoiledMaterial != null)
-                {
-                    objectRenderer.material = spoiledMaterial;
-                }
-                Debug.Log($"⚠️ {gameObject.name} s'est détérioré (pas de sel)");
-            }
-        }
     }
 }

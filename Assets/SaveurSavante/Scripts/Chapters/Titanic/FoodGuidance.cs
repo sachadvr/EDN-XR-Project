@@ -210,14 +210,6 @@ namespace SaveurSavante.Chapters.Titanic
             }
         }
 
-        public bool IsComplete()
-        {
-            return sweetCount >= requiredSweet &&
-                   savoryCount >= requiredSavory &&
-                   acidicCount >= requiredAcidic &&
-                   bitterCount >= requiredBitter;
-        }
-
         public void ShowSuccess()
         {
             if (guidanceText != null)

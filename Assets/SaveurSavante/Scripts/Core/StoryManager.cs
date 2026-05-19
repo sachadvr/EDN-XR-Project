@@ -91,17 +91,6 @@ namespace SaveurSavante.Core
             }
         }
 
-        public void ShowHint(string chapterName, int hintIndex)
-        {
-            if (storyDict.TryGetValue(chapterName, out ChapterStory story))
-            {
-                if (hintIndex >= 0 && hintIndex < story.hints.Length)
-                {
-                    ShowStoryText(story.hints[hintIndex]);
-                }
-            }
-        }
-
         public void ShowSuccess(string chapterName)
         {
             if (storyDict.TryGetValue(chapterName, out ChapterStory story))
@@ -151,13 +140,5 @@ namespace SaveurSavante.Core
             yield break;
         }
 
-        public string GetChapterIntroduction(string chapterName)
-        {
-            if (storyDict.TryGetValue(chapterName, out ChapterStory story))
-            {
-                return story.introduction;
-            }
-            return "";
-        }
     }
 }

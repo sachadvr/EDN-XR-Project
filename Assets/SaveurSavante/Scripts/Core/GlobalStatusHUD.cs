@@ -139,9 +139,5 @@ namespace SaveurSavante.Core
             hudText.text = status;
         }
 
-        public void UpdateHUDText(string text)
-        {
-            if (hudText != null) hudText.text = text;
-        }
     }
 }

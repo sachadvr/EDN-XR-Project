@@ -178,24 +178,5 @@ namespace SaveurSavante.Chapters.Gandhi
             }
         }
 
-        public void ResetBowl()
-        {
-            // Remettre tous les aliments à leur position initiale
-            foreach (var food in placedFoods)
-            {
-                if (food != null)
-                {
-                    food.ResetFood();
-                }
-            }
-
-            placedFoods.Clear();
-            fruitCount = 0;
-            vegetableCount = 0;
-            grainCount = 0;
-            isComplete = false;
-
-            ShowStatus("🧘 Le bol a été vidé. Recommence la quête.", 3f);
-        }
     }
 }

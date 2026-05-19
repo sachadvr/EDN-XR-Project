@@ -18,11 +18,7 @@ namespace SaveurSavante.Chapters.Vikings
         public GameObject completionText;
 
         [Header("UI - Jauges")]
-        public GameObject energyBar;
-        public GameObject satietyBar;
-        public TMP_Text energyText;
         public TMP_Text satietyText;
-        public Transform energyBarFill;
         public Transform satietyBarFill;
 
         [Header("UI - Status")]
@@ -82,6 +78,7 @@ namespace SaveurSavante.Chapters.Vikings
             CheckCompletion();
         }
 
+        // Legacy stub: VikingFood.EatFood still calls this; eating no longer affects score.
         public void EatFood(VikingFood food) { }
 
         public void RegisterCookedFood(VikingFood food)

@@ -165,42 +165,6 @@ namespace SaveurSavante.Chapters.Vikings
             transform.localPosition = startPos;
         }
 
-        public void ExtinguishFire()
-        {
-            isActive = false;
-
-            if (fireParticles != null)
-            {
-                fireParticles.Stop();
-            }
-            if (fireLight != null)
-            {
-                fireLight.enabled = false;
-            }
-            if (audioSource != null)
-            {
-                audioSource.Stop();
-            }
-
-            Debug.Log("🔥 Le feu de camp s'est éteint.");
-        }
-
-        public void RelightFire()
-        {
-            isActive = true;
-
-            if (fireParticles != null)
-            {
-                fireParticles.Play();
-            }
-            if (fireLight != null)
-            {
-                fireLight.enabled = true;
-            }
-
-            Debug.Log("🔥 Le feu de camp est rallumé !");
-        }
-
 #if UNITY_EDITOR
         private void OnValidate()
         {

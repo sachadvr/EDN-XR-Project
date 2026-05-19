@@ -187,12 +187,5 @@ namespace SaveurSavante.Chapters.Gandhi
             }
         }
 
-        public void ShowHint()
-        {
-            if (StoryManager.Instance != null && currentRiddleIndex < riddles.Length)
-            {
-                StoryManager.Instance.ShowHint(chapterName, currentRiddleIndex);
-            }
-        }
     }
 }

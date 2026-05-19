@@ -157,6 +157,94 @@ namespace SaveurSavante.Core
                 WristHUD.Instance.SetStory("Bienvenue dans Saveur Savante.\nChoisis un autre portail pour continuer.");
                 WristHUD.Instance.SetStatus("");
             }
+
+            if (AllChaptersComplete())
+            {
+                StartCoroutine(FinaleSequence());
+            }
+        }
+
+        private IEnumerator FinaleSequence()
+        {
+            var xrOrigin = FindObjectOfType<XROrigin>();
+            Vector3 origin = xrOrigin != null ? xrOrigin.transform.position + Vector3.up * 1.5f : hubPosition;
+
+            // Confettis
+            SpawnConfetti(origin);
+
+            // Message finale sur sidebar/wrist (no-op si désactivé)
+            if (WristHUD.Instance != null)
+            {
+                WristHUD.Instance.SetStory("FELICITATIONS !\nTu as termine Saveur Savante !");
+                WristHUD.Instance.SetStatus("Aventure complete - 4/4 chapitres");
+            }
+
+            // Holo finale dans la scène (créé devant la cam)
+            var cam = Camera.main != null ? Camera.main.transform : (xrOrigin != null ? xrOrigin.transform : null);
+            if (cam != null)
+            {
+                var go = new GameObject("HoloFinale");
+                go.transform.SetParent(cam, false);
+                go.transform.localPosition = new Vector3(0f, 0.05f, 1.5f);
+                go.transform.localRotation = Quaternion.identity;
+                go.transform.localScale = Vector3.one * 0.01f;
+                var tmp = go.AddComponent<TMPro.TextMeshPro>();
+                tmp.text = "FELICITATIONS !\nTu as sauve la Saveur Savante !\n4 / 4 chapitres";
+                tmp.fontSize = 18f;
+                tmp.alignment = TMPro.TextAlignmentOptions.Center;
+                tmp.color = new Color(1f, 0.85f, 0.3f);
+                tmp.outlineWidth = 0.3f;
+                tmp.outlineColor = Color.black;
+                tmp.rectTransform.sizeDelta = new Vector2(60f, 30f);
+
+                // Pulse animation
+                StartCoroutine(PulseAndDestroy(tmp.transform, 8f));
+            }
+
+            // Burst de confettis tous les 0.4s pendant 5s
+            for (int i = 0; i < 12; i++)
+            {
+                yield return new WaitForSeconds(0.4f);
+                if (xrOrigin != null) SpawnConfetti(xrOrigin.transform.position + Vector3.up * (1f + UnityEngine.Random.value));
+            }
+        }
+
+        private void SpawnConfetti(Vector3 worldPos)
+        {
+            var psGo = new GameObject("Confetti");
+            psGo.transform.position = worldPos;
+            var ps = psGo.AddComponent<ParticleSystem>();
+            var main = ps.main;
+            main.duration = 2f;
+            main.loop = false;
+            main.startLifetime = 3f;
+            main.startSpeed = 5f;
+            main.startSize = 0.1f;
+            main.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.4f, 0.4f), new Color(0.3f, 0.8f, 1f));
+            main.gravityModifier = 0.6f;
+            var emission = ps.emission;
+            emission.rateOverTime = 0f;
+            emission.SetBursts(new[] { new ParticleSystem.Burst(0f, 80) });
+            var shape = ps.shape;
+            shape.shapeType = ParticleSystemShapeType.Cone;
+            shape.angle = 35f;
+            shape.radius = 0.1f;
+            ps.Play();
+            Destroy(psGo, 5f);
+        }
+
+        private IEnumerator PulseAndDestroy(Transform t, float duration)
+        {
+            float elapsed = 0f;
+            Vector3 baseScale = t.localScale;
+            while (elapsed < duration && t != null)
+            {
+                elapsed += Time.deltaTime;
+                float s = 1f + 0.1f * Mathf.Sin(elapsed * 4f);
+                t.localScale = baseScale * s;
+                yield return null;
+            }
+            if (t != null) Destroy(t.gameObject);
         }
 
         public bool AllChaptersComplete()
