@@ -21,7 +21,7 @@ namespace SaveurSavante.Chapters.Gandhi
 
         [Header("UI")]
         public GameObject balanceIndicator;
-        public TextMeshPro statusText;
+        public TMP_Text statusText;
 
         [Header("État")]
         public List<GandhiFood> placedFoods = new List<GandhiFood>();
@@ -37,6 +37,8 @@ namespace SaveurSavante.Chapters.Gandhi
         {
             treasureHunt = GetComponent<TreasureHunt>();
             if (treasureHunt == null) treasureHunt = FindObjectOfType<TreasureHunt>();
+            if (statusText == null)
+                statusText = SaveurSavante.Core.HoloStatusBootstrap.EnsureHoloText(transform, "HoloStatus_Gandhi", new Vector3(0, 2.5f, 0), 1.2f);
         }
 
         public void ShowIntro()
@@ -45,7 +47,7 @@ namespace SaveurSavante.Chapters.Gandhi
             hasShownIntro = true;
             if (WristHUD.Instance != null)
             {
-                WristHUD.Instance.SetStory("🧘 Gandhi a besoin de ton aide ! Résous les énigmes pour remplir le bol.");
+                WristHUD.Instance.SetStory("Gandhi - Resous les enigmes !\nDepose dans le bol le fruit, le legume puis la graine demandes.");
             }
             if (treasureHunt != null) treasureHunt.StartHunt();
         }
@@ -101,14 +103,14 @@ namespace SaveurSavante.Chapters.Gandhi
 
         private void ShowStatus(string message, float duration)
         {
-            if (WristHUD.Instance != null)
-            {
-                WristHUD.Instance.SetStatus(message);
-            }
-            else if (statusText != null)
+            if (statusText != null)
             {
                 statusText.text = message;
                 statusText.gameObject.SetActive(true);
+            }
+            if (WristHUD.Instance != null)
+            {
+                WristHUD.Instance.SetStatus(message);
             }
         }
 

@@ -10,6 +10,7 @@ namespace SaveurSavante.Chapters.Egypte
         [Header("Configuration")]
         public string chapterName = "Egypte";
         public int requiredFoodCount = 1;
+        public float jarDetectionRadius = 3f;
 
         [Header("Positions")]
         public Transform jarreResetPosition;
@@ -28,6 +29,27 @@ namespace SaveurSavante.Chapters.Egypte
         private List<SaltApplication> validatedFoods = new List<SaltApplication>();
         private Jarre currentJarre = null;
         private bool isValidating = false;
+
+        private void Update()
+        {
+            if (isValidating || currentJarre != null) return;
+            float bestSqr = jarDetectionRadius * jarDetectionRadius;
+            Jarre best = null;
+            foreach (var j in FindObjectsOfType<Jarre>())
+            {
+                if (j.foodsInJar.Count < requiredFoodCount) continue;
+                if (j.isComplete) continue;
+                var grab = j.GetComponent<UnityEngine.XR.Interaction.Toolkit.XRGrabInteractable>();
+                if (grab != null && grab.isSelected) continue;
+                float d = (j.transform.position - transform.position).sqrMagnitude;
+                if (d < bestSqr) { bestSqr = d; best = j; }
+            }
+            if (best != null)
+            {
+                currentJarre = best;
+                ValidateOffering();
+            }
+        }
 
         private void OnTriggerEnter(Collider other)
         {
@@ -56,32 +78,21 @@ namespace SaveurSavante.Chapters.Egypte
 
             // Récupérer tous les aliments via la méthode GetFoodsInJar
             List<SaltApplication> foodsInJar = currentJarre.GetFoodsInJar();
-
-            int preservedCount = 0;
             int totalCount = foodsInJar.Count;
 
+            int preservedCount = 0;
             foreach (var food in foodsInJar)
-            {
-                if (food != null && food.isPreserved)
-                {
-                    preservedCount++;
-                }
-            }
+                if (food != null && food.isPreserved) preservedCount++;
 
-            Debug.Log($"🫙 Validation: {preservedCount}/{totalCount} aliments conservés sur {requiredFoodCount} requis");
-
-            // Vérifier si tous les critères sont remplis
             bool allPreserved = (preservedCount == totalCount) && (totalCount > 0);
             bool countValid = totalCount >= requiredFoodCount;
 
+            Debug.Log($"Validation: {preservedCount}/{totalCount} sales, {requiredFoodCount} requis");
+
             if (allPreserved && countValid)
-            {
                 StartCoroutine(SuccessSequence());
-            }
             else
-            {
                 StartCoroutine(FailureSequence(allPreserved, countValid, totalCount));
-            }
         }
 
         private IEnumerator SuccessSequence()

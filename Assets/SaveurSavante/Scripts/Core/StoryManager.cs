@@ -76,6 +76,13 @@ namespace SaveurSavante.Core
             canvasGroup.alpha = 1f;
         }
 
+        private void LateUpdate()
+        {
+            // Force sidebar to stay always visible no matter what
+            if (storyPanel != null && !storyPanel.activeSelf) storyPanel.SetActive(true);
+            if (canvasGroup != null && canvasGroup.alpha < 1f) canvasGroup.alpha = 1f;
+        }
+
         public void ShowIntroduction(string chapterName)
         {
             if (storyDict.TryGetValue(chapterName, out ChapterStory story))

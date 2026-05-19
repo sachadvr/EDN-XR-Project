@@ -20,7 +20,7 @@ namespace SaveurSavante.Chapters.Egypte
         public GameObject completionText;
 
         [Header("UI")]
-        public TextMeshPro statusText;
+        public TMP_Text statusText;
 
         [Header("État")]
         public List<SaltApplication> foodsInJar = new List<SaltApplication>();
@@ -31,6 +31,8 @@ namespace SaveurSavante.Chapters.Egypte
         {
             grab = GetComponent<XRGrabInteractable>();
             if (grab == null) grab = GetComponentInChildren<XRGrabInteractable>();
+            if (statusText == null)
+                statusText = SaveurSavante.Core.HoloStatusBootstrap.EnsureHoloText(transform, "HoloStatus_Egypte", new Vector3(0, 2.5f, 0), 1.2f);
         }
 
         private void Update()
@@ -72,6 +74,11 @@ namespace SaveurSavante.Chapters.Egypte
         public void AddFood(SaltApplication food)
         {
             if (isComplete) return;
+            if (!food.hasSalt)
+            {
+                ShowStatus("Sale d'abord l'aliment avant de le mettre dans la jarre !", 2f);
+                return;
+            }
 
             foodsInJar.Add(food);
             
@@ -124,14 +131,14 @@ namespace SaveurSavante.Chapters.Egypte
 
         private void ShowStatus(string message, float duration)
         {
-            if (SaveurSavante.Core.WristHUD.Instance != null)
-            {
-                SaveurSavante.Core.WristHUD.Instance.SetStatus(message);
-            }
-            else if (statusText != null)
+            if (statusText != null)
             {
                 statusText.text = message;
                 statusText.gameObject.SetActive(true);
+            }
+            if (SaveurSavante.Core.WristHUD.Instance != null)
+            {
+                SaveurSavante.Core.WristHUD.Instance.SetStatus(message);
             }
         }
 

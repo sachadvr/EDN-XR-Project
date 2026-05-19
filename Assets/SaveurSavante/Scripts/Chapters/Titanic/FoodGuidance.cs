@@ -17,9 +17,9 @@ namespace SaveurSavante.Chapters.Titanic
         public int requiredBitter = 1;
 
         [Header("UI")]
-        public TextMeshPro guidanceText;
-        public TextMeshPro validationText;
-        public TextMeshPro presentationScoreText;
+        public TMP_Text guidanceText;
+        public TMP_Text validationText;
+        public TMP_Text presentationScoreText;
         public GameObject instructionPanel;
 
         [Header("Messages")]

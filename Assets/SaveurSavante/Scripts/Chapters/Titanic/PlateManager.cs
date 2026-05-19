@@ -10,8 +10,9 @@ namespace SaveurSavante.Chapters.Titanic
         [Header("Configuration")]
         public string chapterName = "Titanic";
         public int maxFoodItems = 5;
-        public float requiredBalance = 0.8f; // Score minimum pour valider
-        public float requiredPresentation = 70f; // Score minimum de présentation
+        public float requiredBalance = 0.8f;
+        public float requiredPresentation = 100f;
+        public int requiredFoodCount = 4;
 
         [Header("Feedback")]
         public AudioClip successSound;
@@ -19,9 +20,9 @@ namespace SaveurSavante.Chapters.Titanic
         public ParticleSystem sparkleEffect;
 
         [Header("UI")]
-        public TextMeshPro statusText;
-        public TextMeshPro presentationText;
-        public TextMeshPro balanceText;
+        public TMP_Text statusText;
+        public TMP_Text presentationText;
+        public TMP_Text balanceText;
 
         [Header("État")]
         public List<TitanicFood> placedFoods = new List<TitanicFood>();
@@ -35,6 +36,8 @@ namespace SaveurSavante.Chapters.Titanic
         private void Start()
         {
             foodGuidance = FindObjectOfType<FoodGuidance>();
+            if (statusText == null)
+                statusText = SaveurSavante.Core.HoloStatusBootstrap.EnsureHoloText(transform, "HoloStatus_Titanic", new Vector3(0, 2.5f, 0), 1.2f);
         }
 
         public void ShowIntro()
@@ -43,8 +46,8 @@ namespace SaveurSavante.Chapters.Titanic
             hasShownIntro = true;
             if (WristHUD.Instance != null)
             {
-                WristHUD.Instance.SetStory("🚢 Titanic\nDresse une assiette équilibrée.\nMix les saveurs: sucré, salé, acide, amer.");
-                WristHUD.Instance.SetStatus("Saveurs: 0/4\nVise au moins 3 saveurs différentes.");
+                WristHUD.Instance.SetStory("Titanic - Dresse une assiette equilibree.\nPlace 4 aliments sur l'assiette.");
+                WristHUD.Instance.SetStatus("Aliments: 0/4");
             }
         }
 
@@ -80,7 +83,7 @@ namespace SaveurSavante.Chapters.Titanic
             }
             int variety = (sweet > 0 ? 1 : 0) + (savory > 0 ? 1 : 0) + (acidic > 0 ? 1 : 0) + (bitter > 0 ? 1 : 0);
 
-            string status = $"+{food.foodName} ({food.flavorProfile})\nSaveurs: {variety}/4\n🍬{sweet} 🧂{savory} 🍋{acidic} 🌿{bitter}";
+            string status = $"+{food.foodName} ({food.flavorProfile})\nAliments: {placedFoods.Count}/{requiredFoodCount}\nSaveurs - sucre:{sweet} sale:{savory} acide:{acidic} amer:{bitter}";
             ShowStatus(status, 2f);
 
             UpdateScoreUI();
@@ -92,13 +95,8 @@ namespace SaveurSavante.Chapters.Titanic
 
         private void CalculateScores()
         {
-            // Score de présentation basé sur le nombre d'éléments et leur valeur
-            float totalPresentation = 0f;
-            foreach (var food in placedFoods)
-            {
-                totalPresentation += food.presentationValue;
-            }
-            presentationScore = Mathf.Min(totalPresentation, 100f);
+            // Présentation = +25 par aliment placé, max 100 (4 aliments = 100%)
+            presentationScore = Mathf.Min(placedFoods.Count * 25f, 100f);
 
             // Score d'équilibre basé sur la diversité
             int sweetCount = 0, savoryCount = 0, acidicCount = 0, bitterCount = 0;
@@ -137,25 +135,25 @@ namespace SaveurSavante.Chapters.Titanic
         {
             if (presentationText != null)
             {
-                presentationText.text = $"🎨 Présentation: {presentationScore:F0}/100";
+                presentationText.text = $"Presentation: {presentationScore:F0}/100";
             }
 
             if (balanceText != null)
             {
-                balanceText.text = $"⚖️ Équilibre: {balanceScore:F0}/100";
+                balanceText.text = $"Equilibre: {balanceScore:F0}/100";
             }
         }
 
         private void ShowStatus(string message, float duration)
         {
-            if (SaveurSavante.Core.WristHUD.Instance != null)
-            {
-                SaveurSavante.Core.WristHUD.Instance.SetStatus(message);
-            }
-            else if (statusText != null)
+            if (statusText != null)
             {
                 statusText.text = message;
                 statusText.gameObject.SetActive(true);
+            }
+            if (SaveurSavante.Core.WristHUD.Instance != null)
+            {
+                SaveurSavante.Core.WristHUD.Instance.SetStatus(message);
             }
         }
 
@@ -163,14 +161,9 @@ namespace SaveurSavante.Chapters.Titanic
         {
             if (isComplete) return;
 
-            if (presentationScore >= requiredPresentation && placedFoods.Count >= 4)
+            if (placedFoods.Count >= requiredFoodCount)
             {
                 CompleteChapter();
-            }
-            else if (placedFoods.Count >= 4)
-            {
-                string feedback = $"La présentation pourrait être meilleure... ({presentationScore:F0}/100)";
-                ShowStatus(feedback, 4f);
             }
         }
 
@@ -199,7 +192,7 @@ namespace SaveurSavante.Chapters.Titanic
                 foodGuidance.ShowSuccess();
             }
 
-            ShowStatus("🎉 Un chef-d'œuvre gastronomique ! Le Titanic est fier de toi !", 5f);
+            ShowStatus("Felicitations ! Tu as termine le niveau Titanic !", 5f);
 
             Debug.Log("✅ Chapitre Titanic complété ! Un plat raffiné !");
 

@@ -1,5 +1,7 @@
 using UnityEngine;
 using System;
+using System.Collections;
+using Unity.XR.CoreUtils;
 
 namespace SaveurSavante.Core
 {
@@ -15,6 +17,8 @@ namespace SaveurSavante.Core
 
         [Header("Position retour Hub")]
         public Vector3 hubPosition = new Vector3(0, 1.5f, 0);
+        public Transform hubSpawn;
+        public float completionDelay = 3f;
 
         public event Action OnChapterCompleted;
 
@@ -103,10 +107,55 @@ namespace SaveurSavante.Core
 
             OnChapterCompleted?.Invoke();
 
+            StartCoroutine(EndChapterSequence(chapterName));
+
             // Vérifier si tous les chapitres sont complétés
             if (AllChaptersComplete())
             {
-                Debug.Log("🎉 Félicitations ! Vous avez complété tous les chapitres de Saveur Savante !");
+                Debug.Log("Felicitations ! Tous les chapitres sont termines !");
+            }
+        }
+
+        private IEnumerator EndChapterSequence(string chapterName)
+        {
+            string display = char.ToUpper(chapterName[0]) + chapterName.Substring(1).ToLower();
+            string msg = $"Felicitations ! Vous avez reussi le niveau {display} !";
+
+            if (WristHUD.Instance != null)
+            {
+                WristHUD.Instance.SetStory(msg);
+                WristHUD.Instance.SetStatus("Retour au Hub dans quelques secondes...");
+            }
+
+            yield return new WaitForSeconds(completionDelay);
+
+            // Disable matching portal
+            foreach (var portal in FindObjectsOfType<ChapterPortal>(true))
+            {
+                if (portal.chapterName != null && portal.chapterName.ToLower() == chapterName.ToLower())
+                {
+                    portal.MarkCompletedAndDisable();
+                }
+            }
+
+            // Teleport player to hub
+            var xrOrigin = FindObjectOfType<XROrigin>();
+            if (xrOrigin != null)
+            {
+                if (hubSpawn != null)
+                {
+                    xrOrigin.transform.SetPositionAndRotation(hubSpawn.position, hubSpawn.rotation);
+                }
+                else
+                {
+                    xrOrigin.transform.position = hubPosition;
+                }
+            }
+
+            if (WristHUD.Instance != null)
+            {
+                WristHUD.Instance.SetStory("Bienvenue dans Saveur Savante.\nChoisis un autre portail pour continuer.");
+                WristHUD.Instance.SetStatus("");
             }
         }
 

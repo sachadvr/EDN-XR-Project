@@ -13,17 +13,17 @@ namespace SaveurSavante.Chapters.Gandhi
         [Header("Énigmes")]
         public string[] riddles = new string[]
         {
-            "🍎 Gandhi a besoin d'un fruit.",
-            "🥕 Gandhi a besoin d'un légume.",
-            "🌾 Gandhi a besoin d'une graine."
+            "Gandhi a besoin d'un fruit.\nExemples: pomme, banane, orange, fraise.",
+            "Gandhi a besoin d'un legume.\nExemples: carotte, tomate, poivron, salade.",
+            "Gandhi a besoin d'une graine.\nExemples: riz, ble, mais, lentille."
         };
 
         [Header("Réponses attendues")]
         public string[] expectedFoodTypes = new string[] { "fruit", "legume", "graine" };
 
         [Header("UI")]
-        public TextMeshPro riddleText;
-        public TextMeshPro feedbackText;
+        public TMP_Text riddleText;
+        public TMP_Text feedbackText;
         public GameObject riddlePanel;
 
         [Header("Feedback")]
@@ -38,6 +38,14 @@ namespace SaveurSavante.Chapters.Gandhi
         public bool isComplete = false;
 
         private bool huntStarted = false;
+
+        private void Start()
+        {
+            if (riddleText == null)
+                riddleText = SaveurSavante.Core.HoloStatusBootstrap.EnsureHoloText(transform, "HoloRiddle_Gandhi", new Vector3(0, 3.2f, 0), 1.3f);
+            if (feedbackText == null)
+                feedbackText = SaveurSavante.Core.HoloStatusBootstrap.EnsureHoloText(transform, "HoloFeedback_Gandhi", new Vector3(0, 2.0f, 0), 1.0f);
+        }
 
         public void StartHunt()
         {
@@ -71,10 +79,10 @@ namespace SaveurSavante.Chapters.Gandhi
                     successParticles.Play();
                 }
 
-                string successMessage = $"✅ {food.foodName} est la bonne réponse !";
+                string successMessage = $"Bravo ! {food.foodName} est la bonne reponse !";
                 if (currentRiddleIndex < riddles.Length)
                 {
-                    successMessage += "\n🧘 Gandhi est reconnaissant...";
+                    successMessage += "\nGandhi est reconnaissant.";
                 }
                 ShowFeedback(successMessage);
 
@@ -100,7 +108,7 @@ namespace SaveurSavante.Chapters.Gandhi
                 }
 
                 string hint = GetHintForType(expectedType);
-                ShowFeedback($"❌ Ce n'est pas ce qu'il faut...\n💡 Indice: {hint}");
+                ShowFeedback($"Ce n'est pas ce qu'il faut.\nIndice: {hint}");
 
                 // Retourner la nourriture à sa position d'origine
                 food.ReturnToSpawn();
@@ -132,7 +140,7 @@ namespace SaveurSavante.Chapters.Gandhi
             string riddle = riddles[currentRiddleIndex];
             string instr = $"Énigme {currentRiddleIndex + 1}/{riddles.Length}\n{riddle}";
 
-            if (riddleText != null) riddleText.text = riddle;
+            if (riddleText != null) { riddleText.text = instr; riddleText.gameObject.SetActive(true); }
             if (WristHUD.Instance != null) WristHUD.Instance.SetStatus(instr);
 
             if (riddleSound != null)

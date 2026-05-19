@@ -38,6 +38,25 @@ namespace SaveurSavante.Chapters.Vikings
             cookingZone = GetComponent<BoxCollider>();
             cookingZone.isTrigger = true;
             cookingZone.size = cookingZoneSize;
+
+            // Ensure no collider on the cooking station blocks the player or food grabbing
+            foreach (var c in GetComponentsInChildren<Collider>(true))
+            {
+                c.isTrigger = true;
+            }
+            // Strip any rigidbody to avoid physics interactions
+            foreach (var rbToRemove in GetComponentsInChildren<Rigidbody>(true))
+            {
+                Destroy(rbToRemove);
+            }
+
+            // Put on Ignore Raycast layer so the XR ray-cast does not stop on this trigger
+            int ignoreLayer = LayerMask.NameToLayer("Ignore Raycast");
+            if (ignoreLayer >= 0)
+            {
+                gameObject.layer = ignoreLayer;
+                foreach (var t in GetComponentsInChildren<Transform>(true)) t.gameObject.layer = ignoreLayer;
+            }
         }
 
         private void Start()
@@ -53,15 +72,20 @@ namespace SaveurSavante.Chapters.Vikings
             }
         }
 
-        private void OnTriggerEnter(Collider other)
+        private void OnTriggerEnter(Collider other) { TryCook(other); }
+        private void OnTriggerStay(Collider other) { TryCook(other); }
+
+        private void TryCook(Collider other)
         {
             if (!isActive) return;
-
             VikingFood food = other.GetComponentInParent<VikingFood>();
-            if (food != null && !food.isCooked && food.canBeCooked && !foodsBeingCooked.Contains(food))
-            {
-                StartCoroutine(CookFood(food));
-            }
+            if (food == null) return;
+            if (food.isCooked || !food.canBeCooked) return;
+            if (foodsBeingCooked.Contains(food)) return;
+            // Ne pas cuire pendant que tenu par joueur
+            var grab = food.GetComponent<UnityEngine.XR.Interaction.Toolkit.XRGrabInteractable>();
+            if (grab != null && grab.isSelected) return;
+            StartCoroutine(CookFood(food));
         }
 
         private IEnumerator CookFood(VikingFood food)

@@ -195,26 +195,50 @@ namespace SaveurSavante.Chapters.Vikings
         public void Cook()
         {
             if (isCooked) return;
-
-            if (TrySwapToCookedVariant())
-                return;
-
             isCooked = true;
+            canBeCooked = false;
 
-            // Augmenter les valeurs nutritionnelles
             currentEnergy = cookedEnergyValue;
             currentSatiety = cookedSatietyValue;
 
-            // Changer le material
             if (objectRenderer != null && cookedMaterial != null)
             {
                 objectRenderer.material = cookedMaterial;
             }
 
-            // Petit effet de scale pour montrer la cuisson
-            StartCoroutine(CookingAnimation());
+            // Notifier le NutritionManager (incremente la satiete directement)
+            NutritionManager manager = FindObjectOfType<NutritionManager>();
+            if (manager != null) manager.RegisterCookedFood(this);
 
-            Debug.Log($"🔥 {foodName} est cuit ! Énergie: {currentEnergy}, Satiété: {currentSatiety}");
+            // Disable grab/collisions
+            if (grabInteractable != null) grabInteractable.enabled = false;
+            foreach (var col in GetComponentsInChildren<Collider>(true)) col.enabled = false;
+            if (rb != null) { rb.isKinematic = true; rb.useGravity = false; rb.velocity = Vector3.zero; }
+
+            StartCoroutine(FlyToSkyAndDestroy());
+
+            Debug.Log($"{foodName} cuit ! Envol vers le ciel.");
+        }
+
+        private System.Collections.IEnumerator FlyToSkyAndDestroy()
+        {
+            float duration = 1.5f;
+            float elapsed = 0f;
+            Vector3 startPos = transform.position;
+            Vector3 endPos = startPos + Vector3.up * 4f;
+            Vector3 startScale = transform.localScale;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / duration;
+                transform.position = Vector3.Lerp(startPos, endPos, t);
+                transform.localScale = Vector3.Lerp(startScale, Vector3.zero, t);
+                transform.Rotate(0f, 180f * Time.deltaTime, 0f, Space.Self);
+                yield return null;
+            }
+
+            gameObject.SetActive(false);
         }
 
         private bool TrySwapToCookedVariant()

@@ -197,6 +197,17 @@ namespace SaveurSavante.Core
             }
         }
 
+        public void MarkCompletedAndDisable()
+        {
+            isCompleted = true;
+            UpdateVisualState();
+            if (simpleInteractable != null) simpleInteractable.enabled = false;
+            var col = GetComponent<Collider>();
+            if (col != null) col.enabled = false;
+            if (portalEffect != null) portalEffect.Stop();
+            Debug.Log($"Portail {chapterName} desactive (chapitre termine).");
+        }
+
         private void OnDestroy()
         {
             if (simpleInteractable != null)
